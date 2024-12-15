@@ -1,19 +1,18 @@
 package com.conceptile.exception;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
-import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.context.request.WebRequest;
 
 import java.time.LocalDateTime;
 
-@ControllerAdvice
+@Slf4j
+@RestControllerAdvice
 public class FlowChartManagementExceptionHandler {
-    private static final Logger log = LoggerFactory.getLogger(FlowChartManagementExceptionHandler.class);
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<ErrorDetailResponse> validationExceptionHandler(MethodArgumentNotValidException exp, WebRequest request) {
         StringBuilder errorMessage = new StringBuilder();
