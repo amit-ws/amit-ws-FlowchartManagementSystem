@@ -1,4 +1,4 @@
-package com.conceptile.service;
+package com.conceptile.service.implLayer;
 
 import com.conceptile.dto.request.CreateNodeConnectionRequest;
 import com.conceptile.dto.response.FlowchartDTO;
@@ -11,6 +11,7 @@ import com.conceptile.mapper.FlowChartMgmtGlobalMapper;
 import com.conceptile.repository.FlowchartRepository;
 import com.conceptile.repository.NodeConnectionRepository;
 import com.conceptile.repository.NodeRepository;
+import com.conceptile.service.innterfaceLayer.NodeConnectionService;
 import com.conceptile.util.GenericUtil;
 import lombok.AccessLevel;
 import lombok.experimental.FieldDefaults;
@@ -28,14 +29,14 @@ import java.util.stream.Stream;
 @Slf4j
 @Service
 @FieldDefaults(level = AccessLevel.PRIVATE)
-public class NodeConnectionService {
+public class NodeConnectionServiceImpl implements NodeConnectionService {
     final FlowchartRepository flowchartRepository;
     final NodeRepository nodeRepository;
     final NodeConnectionRepository nodeConnectionRepository;
     final FlowChartMgmtGlobalMapper mapper;
 
     @Autowired
-    public NodeConnectionService(FlowchartRepository flowchartRepository, NodeRepository nodeRepository, NodeConnectionRepository nodeConnectionRepository, FlowChartMgmtGlobalMapper mapper) {
+    public NodeConnectionServiceImpl(FlowchartRepository flowchartRepository, NodeRepository nodeRepository, NodeConnectionRepository nodeConnectionRepository, FlowChartMgmtGlobalMapper mapper) {
         this.flowchartRepository = flowchartRepository;
         this.nodeRepository = nodeRepository;
         this.nodeConnectionRepository = nodeConnectionRepository;
@@ -44,6 +45,7 @@ public class NodeConnectionService {
 
 
     @Transactional
+    @Override
     public FlowchartDTO createNodesConnections(Long flowchartId, List<CreateNodeConnectionRequest> requests) {
         GenericUtil.ensureNotNull(flowchartId, "Flowchart id not provided");
         GenericUtil.ensureListNotEmpty(requests, "Payload not provided");
@@ -86,6 +88,7 @@ public class NodeConnectionService {
 
 
     @Transactional
+    @Override
     public void deleteNodeConnection(Long flowChartId, List<Long> connectionIds) {
         GenericUtil.ensureNotNull(flowChartId, "Please provide flowchart ID");
         GenericUtil.ensureListNotEmpty(connectionIds, "Please provide connections IDs to remove");

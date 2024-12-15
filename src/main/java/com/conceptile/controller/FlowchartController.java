@@ -3,7 +3,8 @@ package com.conceptile.controller;
 import com.conceptile.dto.request.CreateFlowchartRequest;
 import com.conceptile.dto.response.FlowchartDTO;
 import com.conceptile.exception.ErrorDetailResponse;
-import com.conceptile.service.FlowchartService;
+import com.conceptile.exception.NoDataFoundException;
+import com.conceptile.service.innterfaceLayer.FlowchartService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -30,6 +31,7 @@ public class FlowchartController {
         this.flowchartService = flowchartService;
     }
 
+
     @Operation(
             summary = "Create Flowchart",
             description = "Create flowchart with basic metadata",
@@ -41,10 +43,14 @@ public class FlowchartController {
             }
     )
     @PostMapping("/v1/create")
-    public ResponseEntity createFlowchartHandler(@RequestParam Long userId, @Valid @RequestBody List<CreateFlowchartRequest> request) {
-        return ResponseEntity
-                .status(HttpStatus.CREATED)
-                .body(flowchartService.createFlowchart(userId, request));
+    public ResponseEntity<List<FlowchartDTO>> createFlowchartHandler(@RequestParam Long userId, @Valid @RequestBody List<CreateFlowchartRequest> request) {
+        try {
+            return ResponseEntity
+                    .status(HttpStatus.CREATED)
+                    .body(flowchartService.createFlowchart(userId, request));
+        } catch (NoDataFoundException e) {
+            throw e;
+        }
     }
 
     @Operation(
@@ -59,8 +65,12 @@ public class FlowchartController {
     )
     @DeleteMapping("/v1/deleteById")
     public ResponseEntity deleteByIdHandler(@RequestParam Long flowChartId) {
-        flowchartService.deleteFlowchartAndAssociatedNodesAndConnections(flowChartId);
-        return ResponseEntity.noContent().build();
+        try {
+            flowchartService.deleteFlowchartAndAssociatedNodesAndConnections(flowChartId);
+            return ResponseEntity.noContent().build();
+        } catch (Exception e) {
+            throw e;
+        }
     }
 
 
@@ -75,8 +85,12 @@ public class FlowchartController {
     )
     @GetMapping("/v1/isValid")
     public ResponseEntity<Map<String, Boolean>> validateTheFlowchartHandler(@RequestParam Long flowChartId) {
-        return ResponseEntity
-                .status(HttpStatus.OK)
-                .body(flowchartService.validateTheFlowchart(flowChartId));
+        try {
+            return ResponseEntity
+                    .status(HttpStatus.OK)
+                    .body(flowchartService.validateTheFlowchart(flowChartId));
+        } catch (NoDataFoundException e) {
+            throw e;
+        }
     }
 }

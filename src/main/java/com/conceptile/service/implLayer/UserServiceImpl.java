@@ -1,4 +1,4 @@
-package com.conceptile.service;
+package com.conceptile.service.implLayer;
 
 import com.conceptile.dto.request.RegisterUserRequest;
 import com.conceptile.dto.response.FlowchartDTO;
@@ -10,6 +10,7 @@ import com.conceptile.exception.NoDataFoundException;
 import com.conceptile.mapper.FlowChartMgmtGlobalMapper;
 import com.conceptile.repository.FlowchartRepository;
 import com.conceptile.repository.UserRepository;
+import com.conceptile.service.innterfaceLayer.UserService;
 import com.conceptile.util.EncryptionUtil;
 import com.conceptile.util.GenericUtil;
 import lombok.AccessLevel;
@@ -26,19 +27,20 @@ import java.util.Optional;
 @Slf4j
 @Service
 @FieldDefaults(level = AccessLevel.PRIVATE)
-public class UserService {
+public class UserServiceImpl implements UserService {
     final UserRepository userRepository;
     final FlowchartRepository flowchartRepository;
     final FlowChartMgmtGlobalMapper mapper;
 
     @Autowired
-    public UserService(UserRepository userRepository, FlowchartRepository flowchartRepository, FlowChartMgmtGlobalMapper mapper) {
+    public UserServiceImpl(UserRepository userRepository, FlowchartRepository flowchartRepository, FlowChartMgmtGlobalMapper mapper) {
         this.userRepository = userRepository;
         this.flowchartRepository = flowchartRepository;
         this.mapper = mapper;
     }
 
     @Transactional
+    @Override
     public UserDTO registerUser(RegisterUserRequest request) {
         String email = request.getEmail().trim();
         userRepository.findByEmail(email)
@@ -64,24 +66,27 @@ public class UserService {
         return mapper.fromUserEntityToUserDTO(userRepository.save(user));
     }
 
-
-    public UserDTO findUserUsingEmail(String email) {
+    @Override
+    public UserDTO findUserUsingEmail(String email) throws NoDataFoundException {
         GenericUtil.ensureNotNull(email, "Email not provided");
         return findUser(userRepository.findByEmail(email), email);
     }
 
-    public UserDTO findUserUsingId(Long userId) {
+    @Override
+    public UserDTO findUserUsingId(Long userId) throws NoDataFoundException {
         GenericUtil.ensureNotNull(userId, "User id not provided");
         return findUser(userRepository.findByUserId(userId), userId.toString());
     }
 
     @Transactional
+    @Override
     public void deleterUserAndCorrespondingFlowchartData(Long userId) {
         GenericUtil.ensureNotNull(userId, "User not provided");
         userRepository.deleteByUserId(userId);
     }
 
-    public List<FlowchartDTO> getAllFlowchartsForUser(Long userId) {
+    @Override
+    public List<FlowchartDTO> getAllFlowchartsForUser(Long userId) throws NoDataFoundException {
         GenericUtil.ensureNotNull(userId, "Please provide userId");
         User user = userRepository.findByUserId(userId).orElseThrow(() -> new NoDataFoundException("No user found with provided IU: " + userId));
         List<Flowchart> flowcharts = flowchartRepository.findAllByUser(user);

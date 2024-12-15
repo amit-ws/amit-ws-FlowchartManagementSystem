@@ -3,7 +3,9 @@ package com.conceptile.controller;
 import com.conceptile.dto.request.CreateNodeRequest;
 import com.conceptile.dto.response.FlowchartDTO;
 import com.conceptile.exception.ErrorDetailResponse;
-import com.conceptile.service.NodeService;
+import com.conceptile.exception.NoDataFoundException;
+import com.conceptile.service.implLayer.NodeServiceImpl;
+import com.conceptile.service.innterfaceLayer.NodeService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -29,6 +31,7 @@ public class NodeController {
         this.nodeService = nodeService;
     }
 
+
     @Operation(
             summary = "Create Nodes",
             description = "Create nodes for a flowchart",
@@ -41,9 +44,13 @@ public class NodeController {
     )
     @PostMapping("/v1/create")
     public ResponseEntity<FlowchartDTO> createNodesHandler(@RequestParam Long userId, @RequestParam Long flowchartId, @Valid @RequestBody List<CreateNodeRequest> requests) {
-        return ResponseEntity
-                .status(HttpStatus.CREATED)
-                .body(nodeService.createNodesForFlowchart(userId, flowchartId, requests));
+        try {
+            return ResponseEntity
+                    .status(HttpStatus.CREATED)
+                    .body(nodeService.createNodesForFlowchart(userId, flowchartId, requests));
+        } catch (NoDataFoundException e) {
+            throw e;
+        }
     }
 
     @Operation(
@@ -57,8 +64,12 @@ public class NodeController {
     )
     @DeleteMapping("/v1/delete")
     public ResponseEntity<FlowchartDTO> deleteNodeAndConnectionHandler(@RequestParam Long flowchartId, @RequestParam Long nodeId) {
-        nodeService.deleteNodeAndConnections(flowchartId, nodeId);
-        return ResponseEntity.noContent().build();
+        try {
+            nodeService.deleteNodeAndConnections(flowchartId, nodeId);
+            return ResponseEntity.noContent().build();
+        } catch (NoDataFoundException e) {
+            throw e;
+        }
     }
 
 

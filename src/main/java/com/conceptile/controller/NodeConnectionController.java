@@ -3,7 +3,8 @@ package com.conceptile.controller;
 import com.conceptile.dto.request.CreateNodeConnectionRequest;
 import com.conceptile.dto.response.FlowchartDTO;
 import com.conceptile.exception.ErrorDetailResponse;
-import com.conceptile.service.NodeConnectionService;
+import com.conceptile.exception.NoDataFoundException;
+import com.conceptile.service.innterfaceLayer.NodeConnectionService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -41,9 +42,13 @@ public class NodeConnectionController {
     )
     @PostMapping("/v1/create")
     public ResponseEntity<FlowchartDTO> createNodeConnectionsHandler(@RequestParam Long flowchartId, @Valid @RequestBody List<CreateNodeConnectionRequest> requests) {
-        return ResponseEntity
-                .status(HttpStatus.CREATED)
-                .body(nodeConnectionService.createNodesConnections(flowchartId, requests));
+        try {
+            return ResponseEntity
+                    .status(HttpStatus.CREATED)
+                    .body(nodeConnectionService.createNodesConnections(flowchartId, requests));
+        } catch (NoDataFoundException e) {
+            throw e;
+        }
     }
 
     @Operation(
@@ -57,7 +62,11 @@ public class NodeConnectionController {
     )
     @DeleteMapping("/v1/delete")
     public ResponseEntity deleteNodeConnectionHandler(@RequestParam Long flowchartId, @RequestBody List<Long> connectionIds) {
-        nodeConnectionService.deleteNodeConnection(flowchartId, connectionIds);
-        return ResponseEntity.noContent().build();
+        try {
+            nodeConnectionService.deleteNodeConnection(flowchartId, connectionIds);
+            return ResponseEntity.noContent().build();
+        } catch (NoDataFoundException e) {
+            throw e;
+        }
     }
 }

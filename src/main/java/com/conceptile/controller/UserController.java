@@ -4,7 +4,9 @@ import com.conceptile.dto.request.RegisterUserRequest;
 import com.conceptile.dto.response.FlowchartDTO;
 import com.conceptile.dto.response.UserDTO;
 import com.conceptile.exception.ErrorDetailResponse;
-import com.conceptile.service.UserService;
+import com.conceptile.exception.NoDataFoundException;
+import com.conceptile.service.implLayer.UserServiceImpl;
+import com.conceptile.service.innterfaceLayer.UserService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -27,7 +29,7 @@ public class UserController {
     final UserService userService;
 
     @Autowired
-    public UserController(UserService userService) {
+    public UserController(UserServiceImpl userService) {
         this.userService = userService;
     }
 
@@ -60,9 +62,13 @@ public class UserController {
     )
     @GetMapping("/v1/findByEmail")
     public ResponseEntity<UserDTO> findUserUsingEmailHandler(@RequestParam String email) {
-        return ResponseEntity
-                .status(HttpStatus.OK)
-                .body(userService.findUserUsingEmail(email));
+        try {
+            return ResponseEntity
+                    .status(HttpStatus.OK)
+                    .body(userService.findUserUsingEmail(email));
+        } catch (NoDataFoundException e) {
+            throw e;
+        }
     }
 
     @Operation(
@@ -77,9 +83,13 @@ public class UserController {
     )
     @GetMapping("/v1/findByUserId")
     public ResponseEntity<UserDTO> findUserUsingIdHandler(@RequestParam Long id) {
-        return ResponseEntity
-                .status(HttpStatus.OK)
-                .body(userService.findUserUsingId(id));
+        try {
+            return ResponseEntity
+                    .status(HttpStatus.OK)
+                    .body(userService.findUserUsingId(id));
+        } catch (NoDataFoundException e) {
+            throw e;
+        }
     }
 
     @Operation(
@@ -94,10 +104,13 @@ public class UserController {
     )
     @DeleteMapping("/v1/deleteById")
     public ResponseEntity<UserDTO> deleterUserAndCorrespondingFlowchartDataHandler(@RequestParam Long id) {
-        userService.deleterUserAndCorrespondingFlowchartData(id);
-        return ResponseEntity.noContent().build();
+        try {
+            userService.deleterUserAndCorrespondingFlowchartData(id);
+            return ResponseEntity.noContent().build();
+        } catch (Exception e) {
+            throw e;
+        }
     }
-
 
     @Operation(
             summary = "Get all flowcharts using user ID",
@@ -110,9 +123,13 @@ public class UserController {
     )
     @GetMapping("/v1/getAllFlowcharts")
     public ResponseEntity<List<FlowchartDTO>> getAllFlowchartsForUserHandler(@RequestParam Long id) {
-        return ResponseEntity
-                .status(HttpStatus.OK)
-                .body(userService.getAllFlowchartsForUser(id));
+        try {
+            return ResponseEntity
+                    .status(HttpStatus.OK)
+                    .body(userService.getAllFlowchartsForUser(id));
+        } catch (NoDataFoundException e) {
+            throw e;
+        }
     }
 
 

@@ -1,4 +1,4 @@
-package com.conceptile.service;
+package com.conceptile.service.implLayer;
 
 import com.conceptile.dto.request.CreateNodeRequest;
 import com.conceptile.dto.response.FlowchartDTO;
@@ -11,11 +11,11 @@ import com.conceptile.repository.FlowchartRepository;
 import com.conceptile.repository.NodeConnectionRepository;
 import com.conceptile.repository.NodeRepository;
 import com.conceptile.repository.UserRepository;
+import com.conceptile.service.innterfaceLayer.NodeService;
 import com.conceptile.util.GenericUtil;
 import com.conceptile.util.PositionNodeUtil;
 import lombok.AccessLevel;
 import lombok.experimental.FieldDefaults;
-import lombok.extern.java.Log;
 import org.apache.commons.lang3.tuple.Pair;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -28,7 +28,7 @@ import java.util.stream.Collectors;
 
 @Service
 @FieldDefaults(level = AccessLevel.PRIVATE)
-public class NodeService {
+public class NodeServiceImpl implements NodeService {
     final UserRepository userRepository;
     final FlowchartRepository flowchartRepository;
     final NodeRepository nodeRepository;
@@ -36,7 +36,7 @@ public class NodeService {
     final FlowChartMgmtGlobalMapper mapper;
 
     @Autowired
-    public NodeService(UserRepository userRepository, FlowchartRepository flowchartRepository, NodeRepository nodeRepository, NodeConnectionRepository nodeConnectionRepository, FlowChartMgmtGlobalMapper mapper) {
+    public NodeServiceImpl(UserRepository userRepository, FlowchartRepository flowchartRepository, NodeRepository nodeRepository, NodeConnectionRepository nodeConnectionRepository, FlowChartMgmtGlobalMapper mapper) {
         this.userRepository = userRepository;
         this.flowchartRepository = flowchartRepository;
         this.nodeRepository = nodeRepository;
@@ -44,6 +44,7 @@ public class NodeService {
         this.mapper = mapper;
     }
 
+    @Override
     @Transactional
     public FlowchartDTO createNodesForFlowchart(Long userId, Long flowchartId, List<CreateNodeRequest> nodeRequests) {
         GenericUtil.ensureNotNull(userId, "Please provide user id");
@@ -77,6 +78,8 @@ public class NodeService {
     }
 
 
+    @Override
+    @Transactional
     public void deleteNodeAndConnections(Long flowchartId, Long nodeId) {
         GenericUtil.ensureNotNull(flowchartId, "Please provide flowchart ID for which node(s) has to be deleted");
         GenericUtil.ensureNotNull(nodeId, "Please provide node ID(s) to delete");
