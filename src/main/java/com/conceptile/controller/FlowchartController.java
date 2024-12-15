@@ -14,10 +14,7 @@ import lombok.experimental.FieldDefaults;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -43,9 +40,26 @@ public class FlowchartController {
             }
     )
     @PostMapping("/v1/create")
-    public ResponseEntity createFlowchartHandler(@Valid @RequestBody List<CreateFlowchartRequest> request) {
+    public ResponseEntity createFlowchartHandler(@RequestParam Long userId, @Valid @RequestBody List<CreateFlowchartRequest> request) {
         return ResponseEntity
                 .status(HttpStatus.CREATED)
-                .body(flowchartService.createFlowchart(request));
+                .body(flowchartService.createFlowchart(userId, request));
+    }
+
+    @Operation(
+            summary = "Delete flowchart by ID",
+            description = "Delete a flowchart and associated nodes, connections (edges) using flowchartID",
+            responses = {
+                    @ApiResponse(responseCode = "200", description = "User deleted",
+                            content = @Content(mediaType = "application/json", schema = @Schema(implementation = Void.class))),
+                    @ApiResponse(responseCode = "400", description = "Bad Request", content = @Content(schema = @Schema(implementation = ErrorDetailResponse.class))),
+                    @ApiResponse(responseCode = "500", description = "Internal Server Error", content = @Content(schema = @Schema(implementation = ErrorDetailResponse.class)))
+            }
+    )
+    @DeleteMapping("/v1/deleteById")
+    public ResponseEntity deleteByIdhandler(@RequestParam Long flowChartId) {
+        flowchartService.deleteFlowchartAndAssociatedNodesAndConnections(flowChartId);
+        return ResponseEntity.noContent().build();
+
     }
 }

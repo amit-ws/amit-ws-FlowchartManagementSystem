@@ -1,6 +1,7 @@
 package com.conceptile.entity;
 
 import com.conceptile.constant.NodeConnectionType;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
@@ -43,4 +44,5 @@ public class NodeConnection {
     @ManyToOne
     @JoinColumn(name = "flowchart_id", referencedColumnName = "flow_chart_id", nullable = false)
     Flowchart flowchart;  /* The flowchart this connection belongs to */
+
 }

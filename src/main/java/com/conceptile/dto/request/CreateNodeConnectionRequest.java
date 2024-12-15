@@ -11,10 +11,11 @@ import lombok.experimental.FieldDefaults;
 @FieldDefaults(level = AccessLevel.PRIVATE)
 @Builder
 public class CreateNodeConnectionRequest {
-    @NotNull(message = "Node edge type is required")
+    @NotNull(message = "Node connection (edge) type is required")
     NodeConnectionType type;
     String condition;
-
-    Integer fromNode;
-    Integer toNode;
+    @NotNull(message = "Please provide starting node")
+    Long fromNodeId;
+    @NotNull(message = "Please provide ending node")
+    Long toNodeId;
 }

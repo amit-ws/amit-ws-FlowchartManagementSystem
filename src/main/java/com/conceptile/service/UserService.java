@@ -8,6 +8,7 @@ import com.conceptile.exception.NoDataFoundException;
 import com.conceptile.mapper.FlowChartMgmtGlobalMapper;
 import com.conceptile.repository.UserRepository;
 import com.conceptile.util.EncryptionUtil;
+import com.conceptile.util.GenericUtil;
 import lombok.AccessLevel;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
@@ -59,11 +60,19 @@ public class UserService {
 
 
     public UserDTO findUserUsingEmail(String email) {
+        GenericUtil.ensureNotNull(email, "Email not provided");
         return findUser(userRepository.findByEmail(email), email);
     }
 
     public UserDTO findUserUsingId(Long userId) {
+        GenericUtil.ensureNotNull(userId, "User id not provided");
         return findUser(userRepository.findByUserId(userId), userId.toString());
+    }
+
+    @Transactional
+    public void deleterUserAndCorrespondingFlowchartData(Long userId) {
+        GenericUtil.ensureNotNull(userId, "User not provided");
+        userRepository.deleteByUserId(userId);
     }
 
     private UserDTO findUser(Optional<User> userOptional, String identifier) {

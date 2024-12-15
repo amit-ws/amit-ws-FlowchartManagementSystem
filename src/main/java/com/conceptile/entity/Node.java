@@ -47,4 +47,9 @@ public class Node {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "flow_chart_id", referencedColumnName = "flow_chart_id")
     Flowchart flowchart;
+
+    @JsonIgnore
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_id", referencedColumnName = "user_id")
+    User user;
 }

@@ -1,24 +1,23 @@
 package com.conceptile.dto.response;
 
-
+import com.conceptile.constant.NodeType;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
 
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE)
 @Builder
-public class FlowchartDTO {
-    Long flowChartId;
-    String title;
+public class NodeDTO {
+    Long nodeId;
+    String name;
+    NodeType type;
     String description;
+    Integer xAxis;
+    Integer yAxis;
     LocalDateTime createdAt;
     LocalDateTime updatedAt;
-    List<NodeDTO> nodes = new ArrayList<>();
-    List<NodeConnectionDTO> nodeConnections = new ArrayList<>();
 }

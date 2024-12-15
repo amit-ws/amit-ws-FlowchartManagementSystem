@@ -79,5 +79,21 @@ public class UserController {
                 .body(userService.findUserUsingId(id));
     }
 
+    @Operation(
+            summary = "Delete user data using its id",
+            description = "Delete user and its all flowchart and associated nodes, connections (edges) using userId",
+            responses = {
+                    @ApiResponse(responseCode = "200", description = "User deleted",
+                            content = @Content(mediaType = "application/json", schema = @Schema(implementation = Void.class))),
+                    @ApiResponse(responseCode = "400", description = "Bad Request", content = @Content(schema = @Schema(implementation = ErrorDetailResponse.class))),
+                    @ApiResponse(responseCode = "500", description = "Internal Server Error", content = @Content(schema = @Schema(implementation = ErrorDetailResponse.class)))
+            }
+    )
+    @DeleteMapping("/v1/deleteById")
+    public ResponseEntity<UserDTO> deleterUserAndCorrespondingFlowchartDataHandler(@RequestParam Long id) {
+        userService.deleterUserAndCorrespondingFlowchartData(id);
+        return ResponseEntity.noContent().build();
+    }
+
 
 }
