@@ -1,6 +1,7 @@
 package com.conceptile.controller;
 
 import com.conceptile.dto.request.RegisterUserRequest;
+import com.conceptile.dto.response.FlowchartDTO;
 import com.conceptile.dto.response.UserDTO;
 import com.conceptile.exception.ErrorDetailResponse;
 import com.conceptile.service.UserService;
@@ -15,6 +16,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 
 @RestController
@@ -93,6 +96,23 @@ public class UserController {
     public ResponseEntity<UserDTO> deleterUserAndCorrespondingFlowchartDataHandler(@RequestParam Long id) {
         userService.deleterUserAndCorrespondingFlowchartData(id);
         return ResponseEntity.noContent().build();
+    }
+
+
+    @Operation(
+            summary = "Get all flowcharts using user ID",
+            responses = {
+                    @ApiResponse(responseCode = "200", description = "Flowcharts found for user",
+                            content = @Content(mediaType = "application/json", schema = @Schema(implementation = List.class))),
+                    @ApiResponse(responseCode = "400", description = "Bad Request", content = @Content(schema = @Schema(implementation = ErrorDetailResponse.class))),
+                    @ApiResponse(responseCode = "500", description = "Internal Server Error", content = @Content(schema = @Schema(implementation = ErrorDetailResponse.class)))
+            }
+    )
+    @GetMapping("/v1/getAllFlowcharts")
+    public ResponseEntity<List<FlowchartDTO>> getAllFlowchartsForUserHandler(@RequestParam Long id) {
+        return ResponseEntity
+                .status(HttpStatus.OK)
+                .body(userService.getAllFlowchartsForUser(id));
     }
 
 

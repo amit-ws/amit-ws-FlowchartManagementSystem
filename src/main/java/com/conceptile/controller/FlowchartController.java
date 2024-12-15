@@ -17,6 +17,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/flowcharts")
@@ -57,9 +58,25 @@ public class FlowchartController {
             }
     )
     @DeleteMapping("/v1/deleteById")
-    public ResponseEntity deleteByIdhandler(@RequestParam Long flowChartId) {
+    public ResponseEntity deleteByIdHandler(@RequestParam Long flowChartId) {
         flowchartService.deleteFlowchartAndAssociatedNodesAndConnections(flowChartId);
         return ResponseEntity.noContent().build();
+    }
 
+
+    @Operation(
+            summary = "Validate Flowchart by checking all missing nodes connections",
+            responses = {
+                    @ApiResponse(responseCode = "200", description = "Flowchart is valid",
+                            content = @Content(mediaType = "application/json", schema = @Schema(implementation = Map.class))),
+                    @ApiResponse(responseCode = "400", description = "Bad Request", content = @Content(schema = @Schema(implementation = ErrorDetailResponse.class))),
+                    @ApiResponse(responseCode = "500", description = "Internal Server Error", content = @Content(schema = @Schema(implementation = ErrorDetailResponse.class)))
+            }
+    )
+    @GetMapping("/v1/isValid")
+    public ResponseEntity<Map<String, Boolean>> validateTheFlowchartHandler(@RequestParam Long flowChartId) {
+        return ResponseEntity
+                .status(HttpStatus.OK)
+                .body(flowchartService.validateTheFlowchart(flowChartId));
     }
 }

@@ -1,11 +1,14 @@
 package com.conceptile.service;
 
 import com.conceptile.dto.request.RegisterUserRequest;
+import com.conceptile.dto.response.FlowchartDTO;
 import com.conceptile.dto.response.UserDTO;
+import com.conceptile.entity.Flowchart;
 import com.conceptile.entity.User;
 import com.conceptile.exception.FlowChartMgmtException;
 import com.conceptile.exception.NoDataFoundException;
 import com.conceptile.mapper.FlowChartMgmtGlobalMapper;
+import com.conceptile.repository.FlowchartRepository;
 import com.conceptile.repository.UserRepository;
 import com.conceptile.util.EncryptionUtil;
 import com.conceptile.util.GenericUtil;
@@ -17,6 +20,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Optional;
 
 @Slf4j
@@ -24,11 +28,13 @@ import java.util.Optional;
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class UserService {
     final UserRepository userRepository;
+    final FlowchartRepository flowchartRepository;
     final FlowChartMgmtGlobalMapper mapper;
 
     @Autowired
-    public UserService(UserRepository userRepository, FlowChartMgmtGlobalMapper mapper) {
+    public UserService(UserRepository userRepository, FlowchartRepository flowchartRepository, FlowChartMgmtGlobalMapper mapper) {
         this.userRepository = userRepository;
+        this.flowchartRepository = flowchartRepository;
         this.mapper = mapper;
     }
 
@@ -73,6 +79,13 @@ public class UserService {
     public void deleterUserAndCorrespondingFlowchartData(Long userId) {
         GenericUtil.ensureNotNull(userId, "User not provided");
         userRepository.deleteByUserId(userId);
+    }
+
+    public List<FlowchartDTO> getAllFlowchartsForUser(Long userId) {
+        GenericUtil.ensureNotNull(userId, "Please provide userId");
+        User user = userRepository.findByUserId(userId).orElseThrow(() -> new NoDataFoundException("No user found with provided IU: " + userId));
+        List<Flowchart> flowcharts = flowchartRepository.findAllByUser(user);
+        return mapper.fromFlowchartEntitiesToFlowchartDTOs(flowcharts);
     }
 
     private UserDTO findUser(Optional<User> userOptional, String identifier) {

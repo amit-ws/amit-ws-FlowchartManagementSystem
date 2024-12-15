@@ -45,4 +45,21 @@ public class NodeController {
                 .status(HttpStatus.CREATED)
                 .body(nodeService.createNodesForFlowchart(userId, flowchartId, requests));
     }
+
+    @Operation(
+            summary = "Delete Node and its connections",
+            responses = {
+                    @ApiResponse(responseCode = "200", description = "Node and connections deleted",
+                            content = @Content(mediaType = "application/json", schema = @Schema(implementation = Void.class))),
+                    @ApiResponse(responseCode = "400", description = "Bad Request", content = @Content(schema = @Schema(implementation = ErrorDetailResponse.class))),
+                    @ApiResponse(responseCode = "500", description = "Internal Server Error", content = @Content(schema = @Schema(implementation = ErrorDetailResponse.class)))
+            }
+    )
+    @DeleteMapping("/v1/delete")
+    public ResponseEntity<FlowchartDTO> deleteNodeAndConnectionHandler(@RequestParam Long flowchartId, @RequestParam Long nodeId) {
+        nodeService.deleteNodeAndConnections(flowchartId, nodeId);
+        return ResponseEntity.noContent().build();
+    }
+
+
 }

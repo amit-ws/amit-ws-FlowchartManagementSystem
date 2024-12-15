@@ -8,13 +8,14 @@ import com.conceptile.entity.User;
 import com.conceptile.exception.NoDataFoundException;
 import com.conceptile.mapper.FlowChartMgmtGlobalMapper;
 import com.conceptile.repository.FlowchartRepository;
+import com.conceptile.repository.NodeConnectionRepository;
 import com.conceptile.repository.NodeRepository;
 import com.conceptile.repository.UserRepository;
 import com.conceptile.util.GenericUtil;
 import com.conceptile.util.PositionNodeUtil;
 import lombok.AccessLevel;
 import lombok.experimental.FieldDefaults;
-import lombok.extern.slf4j.Slf4j;
+import lombok.extern.java.Log;
 import org.apache.commons.lang3.tuple.Pair;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -25,20 +26,21 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-@Slf4j
 @Service
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class NodeService {
     final UserRepository userRepository;
     final FlowchartRepository flowchartRepository;
     final NodeRepository nodeRepository;
+    final NodeConnectionRepository nodeConnectionRepository;
     final FlowChartMgmtGlobalMapper mapper;
 
     @Autowired
-    public NodeService(UserRepository userRepository, FlowchartRepository flowchartRepository, NodeRepository nodeRepository, FlowChartMgmtGlobalMapper mapper) {
+    public NodeService(UserRepository userRepository, FlowchartRepository flowchartRepository, NodeRepository nodeRepository, NodeConnectionRepository nodeConnectionRepository, FlowChartMgmtGlobalMapper mapper) {
         this.userRepository = userRepository;
         this.flowchartRepository = flowchartRepository;
         this.nodeRepository = nodeRepository;
+        this.nodeConnectionRepository = nodeConnectionRepository;
         this.mapper = mapper;
     }
 
@@ -72,6 +74,15 @@ public class NodeService {
                 mapper.fromNodeEntitiesToNodeDTOs(nodeRepository.saveAll(nodes))
         );
         return flowchartDTO;
+    }
+
+
+    public void deleteNodeAndConnections(Long flowchartId, Long nodeId) {
+        GenericUtil.ensureNotNull(flowchartId, "Please provide flowchart ID for which node(s) has to be deleted");
+        GenericUtil.ensureNotNull(nodeId, "Please provide node ID(s) to delete");
+        Flowchart flowchart = flowchartRepository.findByFlowChartId(flowchartId).orElseThrow(() -> new NoDataFoundException("No flowchart found with provided ID: " + flowchartId));
+        nodeConnectionRepository.deleteAllConnectionsFROMandTOnodes(flowchartId, nodeId);
+        nodeRepository.deleteByFlowchartAndNodeId(flowchart, nodeId);
     }
 }
 

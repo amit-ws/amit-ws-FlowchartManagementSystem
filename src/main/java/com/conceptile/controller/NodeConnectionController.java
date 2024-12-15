@@ -45,4 +45,19 @@ public class NodeConnectionController {
                 .status(HttpStatus.CREATED)
                 .body(nodeConnectionService.createNodesConnections(flowchartId, requests));
     }
+
+    @Operation(
+            summary = "Delete Nodes connections using connection IDs",
+            responses = {
+                    @ApiResponse(responseCode = "200", description = "Nodes connections deleted",
+                            content = @Content(mediaType = "application/json", schema = @Schema(implementation = Void.class))),
+                    @ApiResponse(responseCode = "400", description = "Bad Request", content = @Content(schema = @Schema(implementation = ErrorDetailResponse.class))),
+                    @ApiResponse(responseCode = "500", description = "Internal Server Error", content = @Content(schema = @Schema(implementation = ErrorDetailResponse.class)))
+            }
+    )
+    @DeleteMapping("/v1/delete")
+    public ResponseEntity deleteNodeConnectionHandler(@RequestParam Long flowchartId, @RequestBody List<Long> connectionIds) {
+        nodeConnectionService.deleteNodeConnection(flowchartId, connectionIds);
+        return ResponseEntity.noContent().build();
+    }
 }

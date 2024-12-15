@@ -84,6 +84,15 @@ public class NodeConnectionService {
         return flowchartDTO;
     }
 
+
+    @Transactional
+    public void deleteNodeConnection(Long flowChartId, List<Long> connectionIds) {
+        GenericUtil.ensureNotNull(flowChartId, "Please provide flowchart ID");
+        GenericUtil.ensureListNotEmpty(connectionIds, "Please provide connections IDs to remove");
+        Flowchart flowchart = flowchartRepository.findByFlowChartId(flowChartId).orElseThrow(() -> new NoDataFoundException("No flowchart found with provided id: " + flowChartId));
+        nodeConnectionRepository.deleteAllByFlowchartAndConnectionIdIn(flowchart, connectionIds);
+    }
+
     private List<NodeConnectionDTO> fromNodeConnectionsToNodeConnectionDTO(List<NodeConnection> connections) {
         return connections.stream()
                 .map(nodeConnection -> NodeConnectionDTO.builder()

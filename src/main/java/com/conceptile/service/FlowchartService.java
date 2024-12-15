@@ -13,13 +13,16 @@ import com.conceptile.repository.UserRepository;
 import com.conceptile.util.GenericUtil;
 import lombok.AccessLevel;
 import lombok.experimental.FieldDefaults;
+import lombok.extern.java.Log;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -63,5 +66,14 @@ public class FlowchartService {
     public void deleteFlowchartAndAssociatedNodesAndConnections(Long flowchartId) {
         GenericUtil.ensureNotNull(flowchartId, "Flowchart id not provided");
         flowchartRepository.deleteByFlowChartId(flowchartId);
+    }
+
+
+    public Map<String, Boolean> validateTheFlowchart(Long flowchartId) {
+        GenericUtil.ensureNotNull(flowchartId, "Please provide flowchartId");
+        Flowchart flowchart = flowchartRepository.findByFlowChartId(flowchartId).orElseThrow(() -> new NoDataFoundException("No flowchart found with provided id: " + flowchartId));
+        Long uniqueConnectedNodes = nodeConnectionRepository.countUniqueNodesForFlowchartWhichAreConnected(flowchartId);
+        Long totalCreatedNodes = nodeRepository.countAllByFlowchart(flowchart);
+        return Collections.singletonMap("status", uniqueConnectedNodes.equals(totalCreatedNodes));
     }
 }
