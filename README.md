@@ -24,3 +24,12 @@ Find `FlowchartManagementSystemApplication` main class to start the application.
     - Username: `sa`
     - Password: `pass123`
     - JDBC URL: `jdbc:h2:mem:flowchartDb`
+
+
+### 5. ER Diagram
+
+### 6. Major Functionalities covered
+
+### 7. APIs with functionalities Overview
+
+### 8. APIs flow (Where to Start)
