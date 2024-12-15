@@ -19,4 +19,5 @@ public class NodeConnectionDTO {
     LocalDateTime updatedAt;
     String fromNodeName;
     String toNodeName;
+    Long flowChartId;
 }

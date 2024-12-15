@@ -21,5 +21,4 @@ public interface FlowChartMgmtGlobalMapper {
     List<FlowchartDTO> fromFlowchartEntitiesToFlowchartDTOs(List<Flowchart> flowcharts);
 
     List<NodeDTO> fromNodeEntitiesToNodeDTOs(List<Node> nodeEntities);
-
 }

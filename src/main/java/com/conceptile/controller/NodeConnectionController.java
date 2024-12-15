@@ -2,6 +2,7 @@ package com.conceptile.controller;
 
 import com.conceptile.dto.request.CreateNodeConnectionRequest;
 import com.conceptile.dto.response.FlowchartDTO;
+import com.conceptile.dto.response.NodeConnectionDTO;
 import com.conceptile.exception.ErrorDetailResponse;
 import com.conceptile.exception.NoDataFoundException;
 import com.conceptile.service.innterfaceLayer.NodeConnectionService;
@@ -48,6 +49,8 @@ public class NodeConnectionController {
                     .body(nodeConnectionService.createNodesConnections(flowchartId, requests));
         } catch (NoDataFoundException e) {
             throw e;
+        } catch (IllegalArgumentException e) {
+            throw new RuntimeException(e);
         }
     }
 
@@ -67,6 +70,53 @@ public class NodeConnectionController {
             return ResponseEntity.noContent().build();
         } catch (NoDataFoundException e) {
             throw e;
+        } catch (IllegalArgumentException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+
+    @Operation(
+            summary = "Fetch all outgoing connections (edges) for a given Node",
+            responses = {
+                    @ApiResponse(responseCode = "200", description = "Outgoing NodeConnections (edges) found",
+                            content = @Content(mediaType = "application/json", schema = @Schema(implementation = List.class))),
+                    @ApiResponse(responseCode = "400", description = "Bad Request", content = @Content(schema = @Schema(implementation = ErrorDetailResponse.class))),
+                    @ApiResponse(responseCode = "500", description = "Internal Server Error", content = @Content(schema = @Schema(implementation = ErrorDetailResponse.class)))
+            }
+    )
+    @GetMapping("/v1/outgoing")
+    public ResponseEntity<List<NodeConnectionDTO>> getAllOutgoingNodeConnectionsForNodeHandler(@RequestParam Long flowchartId, @RequestParam(name = "fromNodeId") Long nodeId) {
+        try {
+            return ResponseEntity
+                    .status(HttpStatus.OK)
+                    .body(nodeConnectionService.getAllOutgoingNodeConnectionsForNode(flowchartId, nodeId));
+        } catch (NoDataFoundException e) {
+            throw e;
+        } catch (IllegalArgumentException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    @Operation(
+            summary = "Fetch all outgoing connections (edges) for a given Node",
+            responses = {
+                    @ApiResponse(responseCode = "200", description = "Outgoing NodeConnections (edges) found",
+                            content = @Content(mediaType = "application/json", schema = @Schema(implementation = List.class))),
+                    @ApiResponse(responseCode = "400", description = "Bad Request", content = @Content(schema = @Schema(implementation = ErrorDetailResponse.class))),
+                    @ApiResponse(responseCode = "500", description = "Internal Server Error", content = @Content(schema = @Schema(implementation = ErrorDetailResponse.class)))
+            }
+    )
+    @GetMapping("/v1/graph")
+    public ResponseEntity<List<NodeConnectionDTO>> getAllDirectAndIndirectConnectionsForNodeHandler(@RequestParam Long flowchartId, @RequestParam(name = "fromNodeId") Long nodeId) {
+        try {
+            return ResponseEntity
+                    .status(HttpStatus.OK)
+                    .body(nodeConnectionService.getAllDirectAndIndirectConnectionsForNode(flowchartId, nodeId));
+        } catch (NoDataFoundException e) {
+            throw e;
+        } catch (IllegalArgumentException e) {
+            throw new RuntimeException(e);
         }
     }
 }

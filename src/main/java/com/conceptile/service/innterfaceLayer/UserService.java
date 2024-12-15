@@ -9,7 +9,7 @@ import com.conceptile.exception.NoDataFoundException;
 import java.util.List;
 
 public interface UserService {
-    UserDTO registerUser(RegisterUserRequest request) throws FlowChartMgmtException;
+    UserDTO registerUser(RegisterUserRequest request) throws FlowChartMgmtException, IllegalArgumentException;
 
     UserDTO findUserUsingEmail(String email) throws NoDataFoundException;
 

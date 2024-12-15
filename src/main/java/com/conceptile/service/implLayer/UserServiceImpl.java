@@ -41,7 +41,8 @@ public class UserServiceImpl implements UserService {
 
     @Transactional
     @Override
-    public UserDTO registerUser(RegisterUserRequest request) {
+    public UserDTO registerUser(RegisterUserRequest request) throws FlowChartMgmtException, IllegalArgumentException{
+        GenericUtil.ensureNotNull(request, "Payload not provided");
         String email = request.getEmail().trim();
         userRepository.findByEmail(email)
                 .ifPresent(user -> {

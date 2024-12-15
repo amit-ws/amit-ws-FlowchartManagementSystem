@@ -4,6 +4,7 @@ import com.conceptile.dto.request.RegisterUserRequest;
 import com.conceptile.dto.response.FlowchartDTO;
 import com.conceptile.dto.response.UserDTO;
 import com.conceptile.exception.ErrorDetailResponse;
+import com.conceptile.exception.FlowChartMgmtException;
 import com.conceptile.exception.NoDataFoundException;
 import com.conceptile.service.implLayer.UserServiceImpl;
 import com.conceptile.service.innterfaceLayer.UserService;
@@ -45,9 +46,15 @@ public class UserController {
     )
     @PostMapping("/v1/register")
     public ResponseEntity<UserDTO> registerUserHandler(@Valid @RequestBody RegisterUserRequest request) {
-        return ResponseEntity
-                .status(HttpStatus.CREATED)
-                .body(userService.registerUser(request));
+        try {
+            return ResponseEntity
+                    .status(HttpStatus.CREATED)
+                    .body(userService.registerUser(request));
+        } catch (FlowChartMgmtException e) {
+            throw e;
+        } catch (IllegalArgumentException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     @Operation(
@@ -68,6 +75,8 @@ public class UserController {
                     .body(userService.findUserUsingEmail(email));
         } catch (NoDataFoundException e) {
             throw e;
+        } catch (IllegalArgumentException e) {
+            throw new RuntimeException(e);
         }
     }
 
@@ -89,6 +98,8 @@ public class UserController {
                     .body(userService.findUserUsingId(id));
         } catch (NoDataFoundException e) {
             throw e;
+        } catch (IllegalArgumentException e) {
+            throw new RuntimeException(e);
         }
     }
 
@@ -107,6 +118,8 @@ public class UserController {
         try {
             userService.deleterUserAndCorrespondingFlowchartData(id);
             return ResponseEntity.noContent().build();
+        } catch (IllegalArgumentException e) {
+            throw new RuntimeException(e);
         } catch (Exception e) {
             throw e;
         }
@@ -129,6 +142,8 @@ public class UserController {
                     .body(userService.getAllFlowchartsForUser(id));
         } catch (NoDataFoundException e) {
             throw e;
+        } catch (IllegalArgumentException e) {
+            throw new RuntimeException(e);
         }
     }
 

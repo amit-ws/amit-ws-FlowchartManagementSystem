@@ -8,6 +8,7 @@ import com.conceptile.entity.Node;
 import com.conceptile.entity.NodeConnection;
 import com.conceptile.exception.NoDataFoundException;
 import com.conceptile.mapper.FlowChartMgmtGlobalMapper;
+import com.conceptile.projection.NodeConnectionProjection;
 import com.conceptile.repository.FlowchartRepository;
 import com.conceptile.repository.NodeConnectionRepository;
 import com.conceptile.repository.NodeRepository;
@@ -19,6 +20,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.CollectionUtils;
 
 import java.time.LocalDateTime;
 import java.util.*;
@@ -46,7 +48,7 @@ public class NodeConnectionServiceImpl implements NodeConnectionService {
 
     @Transactional
     @Override
-    public FlowchartDTO createNodesConnections(Long flowchartId, List<CreateNodeConnectionRequest> requests) {
+    public FlowchartDTO createNodesConnections(Long flowchartId, List<CreateNodeConnectionRequest> requests) throws NoDataFoundException, IllegalArgumentException {
         GenericUtil.ensureNotNull(flowchartId, "Flowchart id not provided");
         GenericUtil.ensureListNotEmpty(requests, "Payload not provided");
 
@@ -89,11 +91,31 @@ public class NodeConnectionServiceImpl implements NodeConnectionService {
 
     @Transactional
     @Override
-    public void deleteNodeConnection(Long flowChartId, List<Long> connectionIds) {
+    public void deleteNodeConnection(Long flowChartId, List<Long> connectionIds) throws NoDataFoundException, IllegalArgumentException {
         GenericUtil.ensureNotNull(flowChartId, "Please provide flowchart ID");
         GenericUtil.ensureListNotEmpty(connectionIds, "Please provide connections IDs to remove");
         Flowchart flowchart = flowchartRepository.findByFlowChartId(flowChartId).orElseThrow(() -> new NoDataFoundException("No flowchart found with provided id: " + flowChartId));
         nodeConnectionRepository.deleteAllByFlowchartAndConnectionIdIn(flowchart, connectionIds);
+    }
+
+    @Override
+    public List<NodeConnectionDTO> getAllOutgoingNodeConnectionsForNode(Long flowchartId, Long nodeId) throws NoDataFoundException, IllegalArgumentException {
+        validateInputParams(flowchartId, nodeId);
+        List<NodeConnectionProjection> nodeConnectionProjections = nodeConnectionRepository.getAllNodeConnectionUsingFlowchartIdAndFromNodeId(flowchartId, nodeId);
+        if (CollectionUtils.isEmpty(nodeConnectionProjections)) {
+            throw new NoDataFoundException("No data found");
+        }
+        return fromNodeConnectionProjectionsToNodeConnectionDTOs(nodeConnectionProjections);
+    }
+
+    @Override
+    public List<NodeConnectionDTO> getAllDirectAndIndirectConnectionsForNode(Long flowchartId, Long nodeId) throws NoDataFoundException, IllegalArgumentException {
+        validateInputParams(flowchartId, nodeId);
+        List<NodeConnectionProjection> nodeConnectionProjections = nodeConnectionRepository.getAllDirectAndIndirectNodeConnectionsForNode(flowchartId, nodeId);
+        if (CollectionUtils.isEmpty(nodeConnectionProjections)) {
+            throw new NoDataFoundException("No data found");
+        }
+        return fromNodeConnectionProjectionsToNodeConnectionDTOs(nodeConnectionProjections);
     }
 
     private List<NodeConnectionDTO> fromNodeConnectionsToNodeConnectionDTO(List<NodeConnection> connections) {
@@ -106,8 +128,25 @@ public class NodeConnectionServiceImpl implements NodeConnectionService {
                         .updatedAt(nodeConnection.getUpdatedAt())
                         .fromNodeName(nodeConnection.getFromNode().getName())
                         .toNodeName(nodeConnection.getToNode().getName())
+                        .flowChartId(nodeConnection.getFlowchart().getFlowChartId())
                         .build())
                 .collect(Collectors.toList());
+    }
+
+    private List<NodeConnectionDTO> fromNodeConnectionProjectionsToNodeConnectionDTOs(List<NodeConnectionProjection> nodeConnectionProjections) {
+        return nodeConnectionProjections.stream()
+                .map(connection -> NodeConnectionDTO.builder()
+                        .connectionId(connection.getConnection_id())
+                        .fromNodeName(connection.getFrom_node_name())
+                        .toNodeName(connection.getTo_node_name())
+                        .flowChartId(connection.getFlowchart_id())
+                        .build())
+                .collect(Collectors.toList());
+    }
+
+    private void validateInputParams(Long flowchartId, Long nodeId) {
+        GenericUtil.ensureNotNull(flowchartId, "Please provide flowchart ID");
+        GenericUtil.ensureNotNull(nodeId, "Please provide target Node ID");
     }
 }
 

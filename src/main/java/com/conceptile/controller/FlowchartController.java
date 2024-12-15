@@ -50,6 +50,8 @@ public class FlowchartController {
                     .body(flowchartService.createFlowchart(userId, request));
         } catch (NoDataFoundException e) {
             throw e;
+        } catch (IllegalArgumentException e) {
+            throw new RuntimeException(e);
         }
     }
 
@@ -68,6 +70,8 @@ public class FlowchartController {
         try {
             flowchartService.deleteFlowchartAndAssociatedNodesAndConnections(flowChartId);
             return ResponseEntity.noContent().build();
+        } catch (IllegalArgumentException e) {
+            throw new RuntimeException(e);
         } catch (Exception e) {
             throw e;
         }
@@ -91,6 +95,8 @@ public class FlowchartController {
                     .body(flowchartService.validateTheFlowchart(flowChartId));
         } catch (NoDataFoundException e) {
             throw e;
+        } catch (IllegalArgumentException e) {
+            throw new RuntimeException(e);
         }
     }
 }

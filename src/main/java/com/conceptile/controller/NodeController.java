@@ -4,7 +4,6 @@ import com.conceptile.dto.request.CreateNodeRequest;
 import com.conceptile.dto.response.FlowchartDTO;
 import com.conceptile.exception.ErrorDetailResponse;
 import com.conceptile.exception.NoDataFoundException;
-import com.conceptile.service.implLayer.NodeServiceImpl;
 import com.conceptile.service.innterfaceLayer.NodeService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -50,6 +49,8 @@ public class NodeController {
                     .body(nodeService.createNodesForFlowchart(userId, flowchartId, requests));
         } catch (NoDataFoundException e) {
             throw e;
+        } catch (IllegalArgumentException e) {
+            throw new RuntimeException(e);
         }
     }
 
@@ -69,6 +70,8 @@ public class NodeController {
             return ResponseEntity.noContent().build();
         } catch (NoDataFoundException e) {
             throw e;
+        } catch (IllegalArgumentException e) {
+            throw new RuntimeException(e);
         }
     }
 
