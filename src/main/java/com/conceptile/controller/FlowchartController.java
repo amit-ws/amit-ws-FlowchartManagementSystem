@@ -2,6 +2,7 @@ package com.conceptile.controller;
 
 import com.conceptile.dto.request.CreateFlowchartRequest;
 import com.conceptile.dto.response.FlowchartDTO;
+import com.conceptile.dto.response.FlowchartValidityResponse;
 import com.conceptile.exception.ErrorDetailResponse;
 import com.conceptile.exception.NoDataFoundException;
 import com.conceptile.service.innterfaceLayer.FlowchartService;
@@ -36,7 +37,7 @@ public class FlowchartController {
             summary = "Create Flowchart",
             description = "Create flowchart with basic metadata",
             responses = {
-                    @ApiResponse(responseCode = "200", description = "Successful creation",
+                    @ApiResponse(responseCode = "201", description = "Successful creation",
                             content = @Content(mediaType = "application/json", schema = @Schema(implementation = FlowchartDTO.class))),
                     @ApiResponse(responseCode = "400", description = "Bad Request", content = @Content(schema = @Schema(implementation = ErrorDetailResponse.class))),
                     @ApiResponse(responseCode = "500", description = "Internal Server Error", content = @Content(schema = @Schema(implementation = ErrorDetailResponse.class)))
@@ -59,8 +60,7 @@ public class FlowchartController {
             summary = "Delete flowchart by ID",
             description = "Delete a flowchart and associated nodes, connections (edges) using flowchartID",
             responses = {
-                    @ApiResponse(responseCode = "200", description = "User deleted",
-                            content = @Content(mediaType = "application/json", schema = @Schema(implementation = Void.class))),
+                    @ApiResponse(responseCode = "204", description = "User deleted"),
                     @ApiResponse(responseCode = "400", description = "Bad Request", content = @Content(schema = @Schema(implementation = ErrorDetailResponse.class))),
                     @ApiResponse(responseCode = "500", description = "Internal Server Error", content = @Content(schema = @Schema(implementation = ErrorDetailResponse.class)))
             }
@@ -82,17 +82,40 @@ public class FlowchartController {
             summary = "Validate Flowchart by checking all missing nodes connections",
             responses = {
                     @ApiResponse(responseCode = "200", description = "Flowchart is valid",
-                            content = @Content(mediaType = "application/json", schema = @Schema(implementation = Map.class))),
+                            content = @Content(mediaType = "application/json", schema = @Schema(implementation = FlowchartValidityResponse.class))),
                     @ApiResponse(responseCode = "400", description = "Bad Request", content = @Content(schema = @Schema(implementation = ErrorDetailResponse.class))),
                     @ApiResponse(responseCode = "500", description = "Internal Server Error", content = @Content(schema = @Schema(implementation = ErrorDetailResponse.class)))
             }
     )
     @GetMapping("/v1/isValid")
-    public ResponseEntity<Map<String, Boolean>> validateTheFlowchartHandler(@RequestParam Long flowChartId) {
+    public ResponseEntity<FlowchartValidityResponse> validateTheFlowchartHandler(@RequestParam Long flowChartId) {
         try {
             return ResponseEntity
                     .status(HttpStatus.OK)
                     .body(flowchartService.validateTheFlowchart(flowChartId));
+        } catch (NoDataFoundException e) {
+            throw e;
+        } catch (IllegalArgumentException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+
+    @Operation(
+            summary = "Get flowchart with Node and connections details",
+            responses = {
+                    @ApiResponse(responseCode = "200", description = "Flowchart with nodes, connections found",
+                            content = @Content(mediaType = "application/json", schema = @Schema(implementation = FlowchartDTO.class))),
+                    @ApiResponse(responseCode = "400", description = "Bad Request", content = @Content(schema = @Schema(implementation = ErrorDetailResponse.class))),
+                    @ApiResponse(responseCode = "500", description = "Internal Server Error", content = @Content(schema = @Schema(implementation = ErrorDetailResponse.class)))
+            }
+    )
+    @GetMapping("/v1/getById")
+    public ResponseEntity<FlowchartDTO> getFlowchartWithNodesAndConnectionsHandler(@RequestParam Long userId, @RequestParam Long flowChartId) {
+        try {
+            return ResponseEntity
+                    .status(HttpStatus.OK)
+                    .body(flowchartService.getFlowchartWithNodesAndConnections(userId, flowChartId));
         } catch (NoDataFoundException e) {
             throw e;
         } catch (IllegalArgumentException e) {

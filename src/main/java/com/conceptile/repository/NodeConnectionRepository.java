@@ -2,6 +2,7 @@ package com.conceptile.repository;
 
 
 import com.conceptile.entity.Flowchart;
+import com.conceptile.entity.Node;
 import com.conceptile.entity.NodeConnection;
 import com.conceptile.projection.NodeConnectionProjection;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -10,9 +11,13 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Optional;
+import java.util.concurrent.Flow;
 
 @Repository
 public interface NodeConnectionRepository extends JpaRepository<NodeConnection, Long> {
+    List<NodeConnection> findAllByFlowchart(Flowchart flowchart);
+    Optional<NodeConnection> findByFlowchartAndFromNodeAndToNode(Flowchart flowchart, Node fromNode, Node toNode);
     void deleteAllByFlowchartAndConnectionIdIn(Flowchart flowchart, List<Long> connectionIds);
 
     @Query(value =

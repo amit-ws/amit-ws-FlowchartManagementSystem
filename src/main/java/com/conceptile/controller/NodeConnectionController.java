@@ -35,7 +35,7 @@ public class NodeConnectionController {
             summary = "Create Nodes Connections (edges)",
             description = "Connect nodes of a flowchart (edges)",
             responses = {
-                    @ApiResponse(responseCode = "200", description = "Successful node connections",
+                    @ApiResponse(responseCode = "201", description = "Successful node connections",
                             content = @Content(mediaType = "application/json", schema = @Schema(implementation = FlowchartDTO.class))),
                     @ApiResponse(responseCode = "400", description = "Bad Request", content = @Content(schema = @Schema(implementation = ErrorDetailResponse.class))),
                     @ApiResponse(responseCode = "500", description = "Internal Server Error", content = @Content(schema = @Schema(implementation = ErrorDetailResponse.class)))
@@ -57,8 +57,7 @@ public class NodeConnectionController {
     @Operation(
             summary = "Delete Nodes connections using connection IDs",
             responses = {
-                    @ApiResponse(responseCode = "200", description = "Nodes connections deleted",
-                            content = @Content(mediaType = "application/json", schema = @Schema(implementation = Void.class))),
+                    @ApiResponse(responseCode = "204", description = "Nodes connections deleted"),
                     @ApiResponse(responseCode = "400", description = "Bad Request", content = @Content(schema = @Schema(implementation = ErrorDetailResponse.class))),
                     @ApiResponse(responseCode = "500", description = "Internal Server Error", content = @Content(schema = @Schema(implementation = ErrorDetailResponse.class)))
             }

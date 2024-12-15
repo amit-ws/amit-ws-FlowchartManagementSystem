@@ -15,4 +15,6 @@ public interface FlowchartRepository extends JpaRepository<Flowchart, Long> {
     void deleteByFlowChartId(Long id);
     List<Flowchart> findAllByUser(User user);
 
+    Optional<Flowchart> findByFlowChartIdAndUser(Long id, User user);
+
 }

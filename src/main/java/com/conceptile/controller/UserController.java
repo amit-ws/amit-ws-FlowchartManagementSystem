@@ -38,7 +38,7 @@ public class UserController {
             summary = "Register user",
             description = "Endpoint Registers an user",
             responses = {
-                    @ApiResponse(responseCode = "200", description = "Successful registration",
+                    @ApiResponse(responseCode = "201", description = "Successful registration",
                             content = @Content(mediaType = "application/json", schema = @Schema(implementation = UserDTO.class))),
                     @ApiResponse(responseCode = "400", description = "Bad Request", content = @Content(schema = @Schema(implementation = ErrorDetailResponse.class))),
                     @ApiResponse(responseCode = "500", description = "Internal Server Error", content = @Content(schema = @Schema(implementation = ErrorDetailResponse.class)))
@@ -107,8 +107,7 @@ public class UserController {
             summary = "Delete user data using its id",
             description = "Delete user and its all flowchart and associated nodes, connections (edges) using userId",
             responses = {
-                    @ApiResponse(responseCode = "200", description = "User deleted",
-                            content = @Content(mediaType = "application/json", schema = @Schema(implementation = Void.class))),
+                    @ApiResponse(responseCode = "204", description = "User deleted"),
                     @ApiResponse(responseCode = "400", description = "Bad Request", content = @Content(schema = @Schema(implementation = ErrorDetailResponse.class))),
                     @ApiResponse(responseCode = "500", description = "Internal Server Error", content = @Content(schema = @Schema(implementation = ErrorDetailResponse.class)))
             }
@@ -126,7 +125,7 @@ public class UserController {
     }
 
     @Operation(
-            summary = "Get all flowcharts using user ID",
+            summary = "Get all Flowcharts with Nodes (only) using user ID",
             responses = {
                     @ApiResponse(responseCode = "200", description = "Flowcharts found for user",
                             content = @Content(mediaType = "application/json", schema = @Schema(implementation = List.class))),

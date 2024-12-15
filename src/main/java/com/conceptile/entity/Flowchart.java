@@ -34,8 +34,7 @@ public class Flowchart {
     @Column(name = "updated_at")
     LocalDateTime updatedAt;
 
-    @JsonIgnore
-    @OneToMany(mappedBy = "flowchart", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "flowchart", cascade = CascadeType.ALL, orphanRemoval = true)
     List<Node> nodes = new ArrayList<>();
 
     @JsonIgnore

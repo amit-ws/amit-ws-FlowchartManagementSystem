@@ -67,23 +67,28 @@ public class NodeConnectionServiceImpl implements NodeConnectionService {
                     Node toNode = nodeMap.get(request.getToNodeId());
                     if (fromNode == null || toNode == null) {
                         throw new NoDataFoundException(String.format(
-                                "Nodes with IDs %d and %d were not found",
+                                "Nodes with IDs %d or %d were not found",
                                 request.getFromNodeId(),
                                 request.getToNodeId()
                         ));
                     }
-                    return NodeConnection.builder()
-                            .type(request.getType())
-                            .condition(request.getCondition() != null ? request.getCondition().trim() : null)
-                            .fromNode(fromNode)
-                            .toNode(toNode)
-                            .flowchart(flowchart)
-                            .createdAt(LocalDateTime.now())
-                            .build();
+                    Optional<NodeConnection> nodeConnection = nodeConnectionRepository.findByFlowchartAndFromNodeAndToNode(flowchart, fromNode, toNode);
+                    if (nodeConnection.isEmpty()) {
+                        return NodeConnection.builder()
+                                .type(request.getType())
+                                .condition(request.getCondition() != null ? request.getCondition().trim() : null)
+                                .fromNode(fromNode)
+                                .toNode(toNode)
+                                .flowchart(flowchart)
+                                .createdAt(LocalDateTime.now())
+                                .build();
+                    }
+                    return null;
                 })
+                .filter(Objects::nonNull)
                 .collect(Collectors.toList());
         FlowchartDTO flowchartDTO = mapper.fromFlowchartEntityToFlowchartDTO(flowchart);
-        flowchartDTO.setNodeConnections(fromNodeConnectionsToNodeConnectionDTO(nodeConnectionRepository.saveAll(nodeConnections)));
+        flowchartDTO.setNodeConnections(mapper.fromNodeConnectionsToNodeConnectionDTO(nodeConnectionRepository.saveAll(nodeConnections)));
         flowchartDTO.setNodes(mapper.fromNodeEntitiesToNodeDTOs(nodeRepository.findAllByFlowchart(flowchart)));
         return flowchartDTO;
     }
@@ -105,7 +110,7 @@ public class NodeConnectionServiceImpl implements NodeConnectionService {
         if (CollectionUtils.isEmpty(nodeConnectionProjections)) {
             throw new NoDataFoundException("No data found");
         }
-        return fromNodeConnectionProjectionsToNodeConnectionDTOs(nodeConnectionProjections);
+        return mapper.fromNodeConnectionProjectionsToNodeConnectionDTOs(nodeConnectionProjections);
     }
 
     @Override
@@ -115,34 +120,9 @@ public class NodeConnectionServiceImpl implements NodeConnectionService {
         if (CollectionUtils.isEmpty(nodeConnectionProjections)) {
             throw new NoDataFoundException("No data found");
         }
-        return fromNodeConnectionProjectionsToNodeConnectionDTOs(nodeConnectionProjections);
+        return mapper.fromNodeConnectionProjectionsToNodeConnectionDTOs(nodeConnectionProjections);
     }
 
-    private List<NodeConnectionDTO> fromNodeConnectionsToNodeConnectionDTO(List<NodeConnection> connections) {
-        return connections.stream()
-                .map(nodeConnection -> NodeConnectionDTO.builder()
-                        .connectionId(nodeConnection.getConnectionId())
-                        .type(nodeConnection.getType())
-                        .condition(nodeConnection.getCondition())
-                        .createdAt(nodeConnection.getCreatedAt())
-                        .updatedAt(nodeConnection.getUpdatedAt())
-                        .fromNodeName(nodeConnection.getFromNode().getName())
-                        .toNodeName(nodeConnection.getToNode().getName())
-                        .flowChartId(nodeConnection.getFlowchart().getFlowChartId())
-                        .build())
-                .collect(Collectors.toList());
-    }
-
-    private List<NodeConnectionDTO> fromNodeConnectionProjectionsToNodeConnectionDTOs(List<NodeConnectionProjection> nodeConnectionProjections) {
-        return nodeConnectionProjections.stream()
-                .map(connection -> NodeConnectionDTO.builder()
-                        .connectionId(connection.getConnection_id())
-                        .fromNodeName(connection.getFrom_node_name())
-                        .toNodeName(connection.getTo_node_name())
-                        .flowChartId(connection.getFlowchart_id())
-                        .build())
-                .collect(Collectors.toList());
-    }
 
     private void validateInputParams(Long flowchartId, Long nodeId) {
         GenericUtil.ensureNotNull(flowchartId, "Please provide flowchart ID");
